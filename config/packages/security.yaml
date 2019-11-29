@@ -1,0 +1,71 @@
+security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+      fos_userbundle:
+        id: fos_user.user_provider.username
+
+    firewalls:
+            dev:
+                pattern: ^/(_(profiler|wdt)|css|images|js)/
+                security: false
+
+            api:
+                pattern:    ^/api
+                fos_oauth:  true
+                stateless:  true
+                anonymous:  true # note that anonymous access is now enabled
+                provider: fos_userbundle
+
+            oauth_token:
+                pattern:    ^/oauth/v2/token
+                security:   false
+
+            oauth_authorize:
+              pattern: ^/oauth/v2/auth
+              form_login:
+                provider: fos_userbundle
+                check_path: /oauth/v2/auth_login_check
+                login_path: /oauth/v2/auth_login
+                use_referer: true
+              anonymous: true
+
+
+            # activate different ways to authenticate
+
+            # http_basic: true
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: true
+            # https://symfony.com/doc/current/security/form_login_setup.html
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+         - { path: ^/admin, roles: ROLE_ADMIN }
+         - { path: ^/profile, roles: ROLE_USER }
+         - { path: ^/api/achievement_progress_bars, roles: [ROLE_ADMIN]}
+         - { path: ^/api/achievements, methods: [GET], roles: [ROLE_USER]}
+         - { path: ^/api/achievements, methods: [GET, POST, PUT], roles: [ROLE_ADMIN]}
+         - { path: ^/api/categories, methods: [GET], roles: [ROLE_USER]}
+         - { path: ^/api/categories, methods: [DELETE, PUT, POST], roles: [ROLE_ADMIN]}
+         - { path: ^/api/cities, methods: [GET, POST], roles: [ROLE_USER]}
+         - { path: ^/api/cities, methods: [DELETE, PUT], roles: [ROLE_ADMIN]}
+         - { path: ^/api/geoname_cities, methods: [GET, POST], roles: [ROLE_USER]}
+         - { path: ^/api/geoname_cities, methods: [DELETE, PUT], roles: [ROLE_ADMIN]}
+         - { path: ^/api/clients, methods: [GET, POST], roles: [ROLE_USER]}
+         - { path: ^/api/clients, methods: [DELETE, PUT], roles: [ROLE_ADMIN]}
+         - { path: ^/api/emails, methods: [GET, POST], roles: [ROLE_USER]}
+         - { path: ^/api/emails, methods: [DELETE, PUT], roles: [ROLE_ADMIN]}
+         - { path: ^/api/events, methods: [GET, PUT], roles: [ROLE_USER]}
+         - { path: ^/api/events, methods: [DELETE, POST], roles: [ROLE_ADMIN]}
+         - { path: ^/api/files, roles: [ROLE_USER]}
+         - { path: ^/api/moderating_events, methods: [POST, PUT], roles: [ROLE_USER]}
+         - { path: ^/api/moderating_events, methods: [GET, DELETE], roles: [ROLE_ADMIN]}
+         - { path: ^/api/sms, methods: [GET, POST], roles: [ROLE_USER]}
+         - { path: ^/api/sms, methods: [DELETE, PUT], roles: [ROLE_ADMIN]}
+         - { path: ^/api/tasks, methods: [GET, POST, PUT], roles: [ROLE_USER]}
+         - { path: ^/api/tasks, methods: [DELETE], roles: [ROLE_ADMIN]}
+         - { path: ^/api/users, methods: [GET], roles: [ROLE_USER]}
+         - { path: ^/api/users, methods: [DELETE, PUT], roles: [ROLE_ADMIN]}

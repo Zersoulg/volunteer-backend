@@ -1,0 +1,48 @@
+parameters:
+    # Adds a fallback VARNISH_URL if the env var is not set.
+    # This allows you to run cache:warmup even if your
+    # environment variables are not available yet.
+    # You should not need to change this value.
+    env(VARNISH_URL): ''
+    site_url: '%env(SITE_URL)%'
+    account_activation_type: '%env(ACCOUNT_ACTIVATION_TYPE)%'
+
+api_platform:
+    enable_fos_user: true
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']
+    title: Volunteer
+    version: 1.0.0
+    show_webby: false
+#    # Varnish integration, remove if unwanted
+#    http_cache:
+#        invalidation:
+#            enabled: true
+#            varnish_urls: ['%env(VARNISH_URL)%']
+#        max_age: 0
+#        shared_max_age: 3600
+#        vary: ['Content-Type', 'Authorization']
+#        public: true
+    # Mercure integration, remove if unwanted
+    mercure:
+        hub_url: '%env(MERCURE_SUBSCRIBE_URL)%'
+    collection:
+        pagination:
+            client_items_per_page: true # Disabled by default
+            items_per_page_parameter_name: limit # Default value
+            maximum_items_per_page: 1000
+
+    swagger:
+        api_keys:
+            apiKey:
+                name: Authorization
+                type: header
+fos_oauth_server:
+    db_driver: orm
+    client_class:        App\UserBundle\Entity\Client
+    access_token_class:  App\UserBundle\Entity\AccessToken
+    refresh_token_class: App\UserBundle\Entity\RefreshToken
+    auth_code_class:     App\UserBundle\Entity\AuthCode
+    service:
+        user_provider: fos_user.user_provider.username_email
+#        user_provider: security.user.provider.concrete.main

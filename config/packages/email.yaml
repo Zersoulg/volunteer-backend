@@ -1,0 +1,7 @@
+parameters:
+  sender_email: '%env(SENDER_MAIL)%'
+
+services:
+  App\EmailBundle\Controller\:
+    resource: '../../src/EmailBundle/Controller'
+    tags: ['controller.service_arguments']

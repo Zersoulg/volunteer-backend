@@ -1,0 +1,79 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: 'ru'
+    geoname_url: '%env(GEONAME_URL)%'
+    geoname_username: '%env(GEONAME_USERNAME)%'
+    site_url: '%env(SITE_URL)%'
+    account_activation_type: '%env(ACCOUNT_ACTIVATION_TYPE)%'
+    vk_id: '%env(VK_ID)%'
+    vk_secret: '%env(VK_SECRET)%'
+    fb_id: '%env(FB_ID)%'
+    fb_secret: '%env(FB_SECRET)%'
+    google_id: '%env(GOOGLE_ID)%'
+    google_secret: '%env(GOOGLE_SECRET)%'
+    google_api_key: '%env(GOOGLE_API_KEY)%'
+    redirect_uri: '%env(REDIRECT_URI)%'
+
+services:
+
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+
+    App\UserBundle\Controller\:
+        resource: '../src/UserBundle/Controller'
+        tags: ['controller.service_arguments']
+
+    App\CityBundle\Controller\:
+        resource: '../src/CityBundle/Controller'
+        tags: ['controller.service_arguments']
+
+    App\FileBundle\Controller\:
+        resource: '../src/FileBundle/Controller'
+        tags: ['controller.service_arguments']
+
+
+    App\CityBundle\Services\CityService:
+        class: App\CityBundle\Services\CityService
+        arguments: ["@service_container"]
+
+
+    oauth.grant_extension.social:
+        class: App\UserBundle\GrantExtension\SocialGrantExtension
+        arguments: ["@service_container", "@social.vk", "@social.fb", "@social.google"]
+        tags:
+            - { name: fos_oauth_server.grant_extension, uri: 'http://example.com/grants/custom' }
+
+    social.vk:
+        class: App\UserBundle\OAuth2\Services\VkService
+        arguments: ['@service_container', '@fos_user.user_manager']
+
+    social.fb:
+        class: App\UserBundle\OAuth2\Services\FbService
+        arguments: ['@service_container', '@fos_user.user_manager']
+
+    social.google:
+        class: App\UserBundle\OAuth2\Services\GoogleService
+        arguments: ['@service_container', '@fos_user.user_manager']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+

@@ -1,0 +1,53 @@
+version: '3.4'
+
+services:
+  nginx:
+    image: ${CONTAINER_REGISTRY_BASE}/nginx:latest
+    build:
+      context: .
+      target: api_platform_nginx
+    volumes:
+      - ./docker/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl/:/etc/nginx/ssl
+      - ./public:/app/public:ro,cached
+    links:
+      - fpm
+    ports:
+      - 8085:80
+    restart: always
+  fpm:
+    image: ${CONTAINER_REGISTRY_BASE}/php:latest
+    build:
+      context: .
+      target: api_platform_php
+    volumes:
+      - ./docker/php/conf.d/api-platform.ini:/usr/local/etc/php/conf.d/api-platform.ini
+      - ./docker/php/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint
+      - .:/srv/api
+    env_file:
+      - .env.local
+    links:
+      - db
+  cache-proxy:
+    image: ${CONTAINER_REGISTRY_BASE}/varnish:latest
+    build:
+      context: .
+      target: api_platform_varnish
+    depends_on:
+      - nginx
+    volumes:
+      - ./docker/varnish/conf:/usr/local/etc/varnish:ro
+    tmpfs:
+      - /usr/local/var/varnish:exec
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 33062:3306
+    volumes:
+      - ./docker/db/mysql/db:/var/lib/mysql
+      - ./docker/db/mysql/log:/var/log

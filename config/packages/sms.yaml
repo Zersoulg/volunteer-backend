@@ -1,0 +1,4 @@
+parameters:
+  sms_api_key: '%env(SMS_API_KEY)%'
+  sms_from: '%env(SMS_FROM)%'
+  sms_is_test: '%env(SMS_IS_TEST)%'
